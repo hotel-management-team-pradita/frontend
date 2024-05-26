@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/popover";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
@@ -23,9 +24,26 @@ const HomePage = () => {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchRooms = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
       try {
-        const response = await axios.get("http://localhost:5173/api/Room");
+        const response = await axios.get("http://localhost:5173/api/Room", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setRooms(response.data);
       } catch (error) {
         console.error("Failed to fetch rooms:", error.message);
