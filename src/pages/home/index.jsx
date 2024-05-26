@@ -2,7 +2,6 @@ import { filterIcon, profileIcon, searchIcon } from "../../assets/icons";
 import { airbnbLogo, hotelImg1 } from "../../assets/images";
 import { addDays, format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,12 +11,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
-  const [date, setDate] = React.useState({
+  const [rooms, setRooms] = useState([]);
+  const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
   });
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get("http://localhost:5173/api/Room");
+        setRooms(response.data);
+      } catch (error) {
+        console.error("Failed to fetch rooms:", error.message);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   const formatPrice = (price) => {
     return price.toLocaleString("id-ID", {
@@ -105,126 +121,41 @@ const HomePage = () => {
 
       {/* Main */}
       <main className="px-10 mb-96">
-        <div className="flex justify-between mt-10">
-          {/* Categories */}
-          <div className="w-full text-center">ICON</div>
-
-          {/* Filter button */}
-          <div className="w-[92px] h-12 border rounded-xl flex justify-center items-center gap-2">
-            <img src={filterIcon} alt="filterIcon" className="size-4" />
-            <span className="font-semibold">Filters</span>
-          </div>
-        </div>
-
-        {/* Card */}
-        <div className="grid grid-cols-4 gap-5">
-          <div className="mt-10">
-            <div className="w-full h-[400px] border">
-              <div className="overflow-hidden rounded-2xl">
-                <img
-                  src={hotelImg1}
-                  alt="hotelImg"
-                  className="w-full h-[300px]"
-                />
-              </div>
-              {/* Description */}
-              <div className="flex flex-col h-[100px] justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Abiansemal, Indonesia</span>
-                  <span
-                    id="status"
-                    className="w-5 h-3 bg-green-600 rounded-full"
-                  ></span>
+        <div className="grid grid-cols-4 gap-5 mt-10">
+          {rooms.map((room) => (
+            <div key={room.roomId} className="mt-10">
+              <Link to={`/Room/${room.roomId}`}>
+                <div className="w-full h-[400px] border">
+                  <div className="overflow-hidden rounded-2xl">
+                    <img
+                      src={room.image}
+                      alt="hotelImg"
+                      className="w-full h-[300px]"
+                    />
+                  </div>
+                  {/* Description */}
+                  <div className="flex flex-col h-[100px] justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{room.name}</span>
+                      <span
+                        id="status"
+                        className={`w-5 h-3 rounded-full ${
+                          room.status === "available"
+                            ? "bg-green-600"
+                            : "bg-red-600"
+                        }`}
+                      ></span>
+                    </div>
+                    <p className="text-slate-500">{room.description}</p>
+                    <p className="font-medium">
+                      {formatPrice(room.price)}{" "}
+                      <span className="font-normal">/night</span>
+                    </p>
+                  </div>
                 </div>
-                <p className="text-slate-500">Hotel ini merupakan hotel...</p>
-                <p className="font-medium">
-                  {formatPrice(80000)}{" "}
-                  <span className="font-normal">/night</span>
-                </p>
-              </div>
+              </Link>
             </div>
-          </div>
-
-          <div className="mt-10">
-            <div className="w-full h-[400px] border">
-              <div className="overflow-hidden rounded-2xl">
-                <img
-                  src={hotelImg1}
-                  alt="hotelImg"
-                  className="w-full h-[300px]"
-                />
-              </div>
-              {/* Description */}
-              <div className="flex flex-col h-[100px] justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Abiansemal, Indonesia</span>
-                  <span
-                    id="status"
-                    className="w-5 h-3 bg-green-600 rounded-full"
-                  ></span>
-                </div>
-                <p className="text-slate-500">Hotel ini merupakan hotel...</p>
-                <p className="font-medium">
-                  {formatPrice(80000)}{" "}
-                  <span className="font-normal">/night</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <div className="w-full h-[400px] border">
-              <div className="overflow-hidden rounded-2xl">
-                <img
-                  src={hotelImg1}
-                  alt="hotelImg"
-                  className="w-full h-[300px]"
-                />
-              </div>
-              {/* Description */}
-              <div className="flex flex-col h-[100px] justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Abiansemal, Indonesia</span>
-                  <span
-                    id="status"
-                    className="w-5 h-3 bg-green-600 rounded-full"
-                  ></span>
-                </div>
-                <p className="text-slate-500">Hotel ini merupakan hotel...</p>
-                <p className="font-medium">
-                  {formatPrice(80000)}{" "}
-                  <span className="font-normal">/night</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <div className="w-full h-[400px] border">
-              <div className="overflow-hidden rounded-2xl">
-                <img
-                  src={hotelImg1}
-                  alt="hotelImg"
-                  className="w-full h-[300px]"
-                />
-              </div>
-              {/* Description */}
-              <div className="flex flex-col h-[100px] justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Abiansemal, Indonesia</span>
-                  <span
-                    id="status"
-                    className="w-5 h-3 bg-green-600 rounded-full"
-                  ></span>
-                </div>
-                <p className="text-slate-500">Hotel ini merupakan hotel...</p>
-                <p className="font-medium">
-                  {formatPrice(80000)}{" "}
-                  <span className="font-normal">/night</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </main>
     </div>
