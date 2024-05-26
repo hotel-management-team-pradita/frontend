@@ -2,15 +2,35 @@ import { profileIcon } from "../../assets/icons";
 import { airbnbLogo } from "../../assets/images";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboardPage = () => {
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchReservations = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
       try {
         const response = await axios.get(
-          "http://localhost:5173/api/Reservation"
+          "http://localhost:5173/api/Reservation",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         setReservations(response.data);
       } catch (error) {

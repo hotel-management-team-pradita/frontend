@@ -26,7 +26,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        `${API_URL}/Auth`, // Gunakan endpoint login
+        `${API_URL}/Auth`,
         {
           Email: formValues.email,
           Password: formValues.password,
@@ -39,6 +39,8 @@ const LoginPage = () => {
       );
 
       if (response.status === 200) {
+        const token = response.data.token;
+        localStorage.setItem("token", token);
         navigate("/");
       } else {
         setErrorMessage("Login failed");
