@@ -4,6 +4,7 @@ import RegisterPage from "./pages/register";
 import LoginPage from "./pages/login";
 import HomePage from "./pages/home";
 import RoomDetailPage from "./pages/roomDetail";
+import AdminDashboardPage from "./pages/adminDashboard";
 
 const App = () => {
   return (
@@ -12,7 +13,8 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/rooms" element={<RoomDetailPage />} />
+        <Route path="/Room/:id" element={<RoomDetailPage />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
       </Routes>
     </Fragment>
   );
