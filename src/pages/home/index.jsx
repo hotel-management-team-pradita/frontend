@@ -1,4 +1,10 @@
-import { filterIcon, profileIcon, searchIcon } from "../../assets/icons";
+import {
+  filterIcon,
+  profileIcon,
+  searchIcon,
+  logoutIcon,
+  settingIcon,
+} from "../../assets/icons";
 import { airbnbLogo, hotelImg1 } from "../../assets/images";
 import { addDays, format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -14,9 +20,13 @@ import {
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "@/lib/axiosInstance";
+import fetchUser from "@/lib/fetchUser";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const authUser = fetchUser();
+  const [profileClicked, setProfileClicked] = useState(true);
   const [rooms, setRooms] = useState([]);
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
@@ -32,18 +42,8 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
-
       try {
-        const response = await axios.get("http://localhost:5173/api/Room", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axiosInstance.get("/Room");
         setRooms(response.data);
       } catch (error) {
         console.error("Failed to fetch rooms:", error.message);
@@ -60,32 +60,38 @@ const HomePage = () => {
     });
   };
 
+  const logoutHandler = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="w-full h-full">
       <header>
         {/* Navbar */}
-        <nav className="h-28">
-          <div className="flex items-center justify-between w-full h-full px-10 border-b gap-7 border-b-slate-200">
+        <nav className="h-28 relative">
+          <div className="flex items-center justify-between w-full h-full px-16 border-b gap-7 border-b-slate-200">
             {/* Airbnb logo */}
-            <img src={airbnbLogo} alt="airbnbLogo" className="w-32" />
+            <img
+              src={airbnbLogo}
+              alt="airbnbLogo"
+              className="w-32"
+            />
 
             {/* Search bar */}
-            <div className="flex items-center justify-between w-full h-16 px-8 overflow-hidden border rounded-full border-slate-300">
+            <div className="flex items-center justify-between w-1/2 h-16 px-8 gap-4 overflow-hidden border rounded-full border-slate-300">
               {/* Room */}
-              <div className="flex flex-col w-1/3 pr-1 border-r border-r-slate-300">
-                <label htmlFor="" className="">
-                  Room
-                </label>
+              <div className="flex flex-col w-full pr-1 border-r border-r-slate-300">
                 <input
                   type="text"
-                  className="-mt-1 border-none focus:ring-0 focus:outline-none"
-                  placeholder="Room"
+                  className="border-none focus:ring-0 focus:outline-none text-sm"
+                  placeholder="Type the room name you want"
                 />
               </div>
               {/* Check in */}
-              <div className="flex flex-col items-center justify-center">
-                <label htmlFor="">Check in - Check out</label>
-                <div className={cn("grid gap-2")}>
+              <div className="flex w-1/2 flex-col items-center justify-center">
+                {/* <label htmlFor="">Check in - Check out</label> */}
+                <div className={cn("grid gap-2 text-center")}>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -111,7 +117,10 @@ const HomePage = () => {
                         )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent
+                      className="w-auto p-0"
+                      align="start"
+                    >
                       <Calendar
                         initialFocus
                         mode="range"
@@ -124,47 +133,99 @@ const HomePage = () => {
                   </Popover>
                 </div>
               </div>
-              <div className="flex items-center justify-center border rounded-full bg-pink size-10">
-                <img src={searchIcon} alt="searchIcon" className="size-4" />
+              <div className="flex items-center aspect-square w-auto justify-center border rounded-full bg-pink size-10">
+                <img
+                  src={searchIcon}
+                  alt="searchIcon"
+                  className="size-4"
+                />
               </div>
             </div>
 
             {/* Account logo */}
-            <div className="flex items-center justify-center h-12 p-1 border rounded-full w-14 border-slate-400">
-              <img src={profileIcon} alt="profileIcon" />
+            <div
+              onClick={() => setProfileClicked((prev) => !prev)}
+              className={cn(
+                "flex items-center aspect-square justify-center h-12 p-1 border rounded-full border-slate-400 relative cursor-pointer"
+              )}
+            >
+              <img
+                src={profileIcon}
+                alt="profileIcon"
+              />
+              <div
+                className={cn(
+                  "absolute w-32 h-auto top-[110%] border rounded-xl bg-white right-0",
+                  { hidden: profileClicked }
+                )}
+              >
+                <Link
+                  to={"/admin"}
+                  className={cn(
+                    "w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl",
+                    { hidden: authUser.email != "admin@gmail.com" }
+                  )}
+                >
+                  <img
+                    src={settingIcon}
+                    alt=""
+                    className="size-5"
+                  />
+                  Admin
+                </Link>
+
+                <div
+                  onClick={logoutHandler}
+                  className="w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl"
+                >
+                  <img
+                    src={logoutIcon}
+                    alt=""
+                    className="size-5"
+                  />
+                  Logout
+                </div>
+              </div>
             </div>
           </div>
         </nav>
       </header>
 
       {/* Main */}
-      <main className="px-10 mb-96">
-        <div className="grid grid-cols-4 gap-5 mt-10">
+      <main className="px-16 mb-96">
+        <div className="grid grid-cols-5 gap-12 mt-10">
           {rooms.map((room) => (
-            <div key={room.roomId} className="mt-10">
+            <div
+              key={room.roomId}
+              className="mt-10"
+            >
               <Link to={`/Room/${room.roomId}`}>
-                <div className="w-full h-[400px] border">
-                  <div className="overflow-hidden rounded-2xl">
+                <div className="w-full ">
+                  <div className="overflow-hidden rounded-2xl mb-2">
                     <img
                       src={room.image}
                       alt="hotelImg"
-                      className="w-full h-[300px]"
+                      className="w-full h-[250px] object-cover"
                     />
                   </div>
                   {/* Description */}
-                  <div className="flex flex-col h-[100px] justify-between">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{room.name}</span>
-                      <span
-                        id="status"
-                        className={`w-5 h-3 rounded-full ${
-                          room.status === "available"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                        }`}
-                      ></span>
+                  <div className="flex flex-col gap-2 justify-between relative ">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{room.name}</span>
+                        {room.status != "0" ? (
+                          <span className="px-4 py-1 rounded-full border text-xs text-red-500 border-red-500">
+                            Fully Reserved
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                      <p className="text-gray-500 font-extralight -mt-1">
+                        {room.description}
+                      </p>
                     </div>
-                    <p className="text-slate-500">{room.description}</p>
+                    {/* Price */}
                     <p className="font-medium">
                       {formatPrice(room.price)}{" "}
                       <span className="font-normal">/night</span>

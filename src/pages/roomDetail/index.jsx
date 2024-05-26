@@ -1,10 +1,21 @@
-import { profileIcon } from "@/assets/icons";
+import {
+  filterIcon,
+  profileIcon,
+  searchIcon,
+  logoutIcon,
+  settingIcon,
+} from "@/assets/icons";
+import { cn } from "@/lib/utils";
 import { airbnbLogo } from "@/assets/images";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import fetchUser from "@/lib/fetchUser";
 
 const RoomDetailPage = () => {
+  const authUser = fetchUser();
+  const [profileClicked, setProfileClicked] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
   const [room, setRoom] = useState(null);
@@ -49,6 +60,11 @@ const RoomDetailPage = () => {
     });
   };
 
+  const logoutHandler = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   if (!room) {
     return <p>Loading...</p>;
   }
@@ -58,20 +74,65 @@ const RoomDetailPage = () => {
       <div className="w-full h-full">
         <header>
           {/* Navbar */}
-          <nav className="h-28">
-            <div className="flex items-center justify-between w-full h-full px-10 border-b gap-7 border-b-slate-200">
+          <nav className="h-28 relative">
+            <div className="flex items-center justify-between w-full h-full px-16 border-b gap-7 border-b-slate-200">
               {/* Airbnb logo */}
-              <img src={airbnbLogo} alt="airbnbLogo" className="w-32" />
+              <img
+                src={airbnbLogo}
+                alt="airbnbLogo"
+                className="w-32"
+              />
 
               {/* Account logo */}
-              <div className="flex items-center justify-center h-12 p-1 border rounded-full w-14 border-slate-400">
-                <img src={profileIcon} alt="profileIcon" />
+              <div
+                onClick={() => setProfileClicked((prev) => !prev)}
+                className={cn(
+                  "flex items-center aspect-square justify-center h-12 p-1 border rounded-full border-slate-400 relative cursor-pointer"
+                )}
+              >
+                <img
+                  src={profileIcon}
+                  alt="profileIcon"
+                />
+                <div
+                  className={cn(
+                    "absolute w-32 h-auto top-[110%] border rounded-xl bg-white right-0",
+                    { hidden: profileClicked }
+                  )}
+                >
+                  <Link
+                    to={"/admin"}
+                    className={cn(
+                      "w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl",
+                      { hidden: authUser.email != "admin@gmail.com" }
+                    )}
+                  >
+                    <img
+                      src={settingIcon}
+                      alt=""
+                      className="size-5"
+                    />
+                    Admin
+                  </Link>
+
+                  <div
+                    onClick={logoutHandler}
+                    className="w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl"
+                  >
+                    <img
+                      src={logoutIcon}
+                      alt=""
+                      className="size-5"
+                    />
+                    Logout
+                  </div>
+                </div>
               </div>
             </div>
           </nav>
         </header>
 
-        <main className="w-full px-10">
+        <main className="w-full px-16">
           <div className="flex justify-between w-full overflow-hidden rounded-2xl">
             <div className="w-1/2">
               {/* Ini udah bener, cuma gambarnya aja ga muncul */}
@@ -96,7 +157,10 @@ const RoomDetailPage = () => {
                   </h1>
                   {/* Check in - Check out */}
                   <div className="flex flex-col items-center justify-center mt-8">
-                    <label htmlFor="" className="text-2xl font-semibold">
+                    <label
+                      htmlFor=""
+                      className="text-2xl font-semibold"
+                    >
                       Check in - Check out
                     </label>
                     {/* ... */}
