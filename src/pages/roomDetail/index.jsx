@@ -52,46 +52,46 @@ const RoomDetailPage = () => {
           </nav>
         </header>
 
-        <main className="w-[1000px] px-10 mb-96">
-          <div className="overflow-hidden rounded-2xl">
-            <img
-              src={room.image}
-              alt="hotelImg"
-              className="object-cover w-full"
-            />
-            <div className="flex justify-between mt-5">
+        <main className="w-full px-10 mb-96">
+          <div className="flex justify-between w-full overflow-hidden rounded-2xl">
+            <div className="w-1/2">
+              <img
+                src={room.image}
+                alt="hotelImg"
+                className="object-cover w-full"
+              />
               {/* Room Description */}
               <div>
                 <h1 className="text-3xl font-bold">{room.location}</h1>{" "}
-                {/* Gunakan data kamar untuk menampilkan lokasi */}
-                <p>{room.description}</p>{" "}
-                {/* Gunakan data kamar untuk menampilkan deskripsi */}
-                <p>Status: {room.status}</p>{" "}
-                {/* Gunakan data kamar untuk menampilkan status */}
+                <p>{room.description}</p> <p>Status: {room.status}</p>{" "}
               </div>
-              {/* Price */}
-              <div className="px-10 py-10 border shadow-2xl w-96 rounded-2xl">
-                <h1 className="text-3xl font-bold">
-                  {formatPrice(room.price)}{" "}
-                  <span className="text-2xl font-normal">night</span>
-                </h1>
-                {/* Check in - Check out */}
-                <div className="flex flex-col items-center justify-center mt-8">
-                  <label htmlFor="" className="text-2xl font-semibold">
-                    Check in - Check out
-                  </label>
-                  {/* ... */}
-                </div>
+            </div>
+            <div className="w-1/2">
+              <div className="flex justify-between w-full">
+                {/* Price */}
+                <div className="w-full px-10 py-10 border shadow-2xl rounded-2xl">
+                  <h1 className="text-3xl font-bold">
+                    {formatPrice(room.price)}{" "}
+                    <span className="text-2xl font-normal">night</span>
+                  </h1>
+                  {/* Check in - Check out */}
+                  <div className="flex flex-col items-center justify-center mt-8">
+                    <label htmlFor="" className="text-2xl font-semibold">
+                      Check in - Check out
+                    </label>
+                    {/* ... */}
+                  </div>
 
-                {/* Reserve button */}
-                <button className="w-full h-10 mt-5 font-semibold text-white rounded-lg bg-pink">
-                  Reserve
-                </button>
+                  {/* Reserve button */}
+                  <button className="w-full h-10 mt-5 font-semibold text-white rounded-lg bg-pink">
+                    Reserve
+                  </button>
 
-                {/* Total price */}
-                <div className="flex justify-between mt-5 text-xl">
-                  <span>{formatPrice(room.price)} x 5 nights</span>
-                  <span>{formatPrice(room.price * 5)}</span>
+                  {/* Total price */}
+                  <div className="flex justify-between mt-5 text-xl">
+                    <span>{formatPrice(room.price)} x 5 nights</span>
+                    <span>{formatPrice(room.price * 5)}</span>
+                  </div>
                 </div>
               </div>
             </div>
