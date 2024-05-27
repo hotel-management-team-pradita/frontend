@@ -5,6 +5,9 @@ import LoginPage from "./pages/login";
 import HomePage from "./pages/home";
 import RoomDetailPage from "./pages/roomDetail";
 import AdminDashboardPage from "./pages/admin";
+import AdminRoomPage from "./pages/admin/room";
+import PaymentPage from "./pages/payment";
+import CloningDemo from "./pages/cloning";
 
 const App = () => {
   return (
@@ -19,6 +22,10 @@ const App = () => {
           element={<RegisterPage />}
         />
         <Route
+          path="/payment"
+          element={<PaymentPage />}
+        />
+        <Route
           path="/login"
           element={<LoginPage />}
         />
@@ -29,6 +36,14 @@ const App = () => {
         <Route
           path="/admin"
           element={<AdminDashboardPage />}
+        />
+        <Route
+          path="/admin/room"
+          element={<AdminRoomPage />}
+        />
+        <Route
+          path="/cloning"
+          element={<CloningDemo />}
         />
       </Routes>
     </Fragment>

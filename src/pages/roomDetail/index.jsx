@@ -6,18 +6,40 @@ import {
   settingIcon,
 } from "@/assets/icons";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { addDays, format } from "date-fns";
 import { airbnbLogo } from "@/assets/images";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import fetchUser from "@/lib/fetchUser";
+import axiosInstance from "@/lib/axiosInstance";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+const dateDifferenceInDays = (date1, date2) => {
+  const firstDate = new Date(date1);
+  const secondDate = new Date(date2);
+  const timeDifference = Math.abs(secondDate - firstDate);
+  const differenceInDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+  return differenceInDays;
+};
 
 const RoomDetailPage = () => {
   const authUser = fetchUser();
   const [profileClicked, setProfileClicked] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
+  const [date, setDate] = useState({
+    from: Date.now(),
+    to: addDays(Date.now(), 5),
+  });
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
@@ -36,14 +58,7 @@ const RoomDetailPage = () => {
       }
 
       try {
-        const response = await axios.get(
-          `http://localhost:5173/api/Room/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axiosInstance.get(`/Room/${id}`);
         setRoom(response.data);
       } catch (error) {
         console.error("Failed to fetch room:", error.message);
@@ -58,6 +73,24 @@ const RoomDetailPage = () => {
       style: "currency",
       currency: "IDR",
     });
+  };
+
+  const reservationHandler = async () => {
+    try {
+      const user = fetchUser();
+      const response = await axiosInstance.post(`/Reservation`, {
+        UserId: user.id,
+        RoomId: id,
+        TotalPrice:
+          room.price * dateDifferenceInDays(date.from ?? 0, date.to ?? 0),
+        StartDate: new Date(date.from),
+        EndDate: new Date(date.to),
+      });
+      setRoom(response.data);
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to fetch room:", error.message);
+    }
   };
 
   const logoutHandler = () => {
@@ -77,11 +110,13 @@ const RoomDetailPage = () => {
           <nav className="h-28 relative">
             <div className="flex items-center justify-between w-full h-full px-16 border-b gap-7 border-b-slate-200">
               {/* Airbnb logo */}
-              <img
-                src={airbnbLogo}
-                alt="airbnbLogo"
-                className="w-32"
-              />
+              <Link to={"/"}>
+                <img
+                  src={airbnbLogo}
+                  alt="airbnbLogo"
+                  className="w-32"
+                />
+              </Link>
 
               {/* Account logo */}
               <div
@@ -132,49 +167,93 @@ const RoomDetailPage = () => {
           </nav>
         </header>
 
-        <main className="w-full px-16">
-          <div className="flex justify-between w-full overflow-hidden rounded-2xl">
-            <div className="w-1/2">
+        <main className="w-full p-16 ">
+          <div className="flex justify-between w-full overflow-hidden rounded-2xl gap-8">
+            <div className="w-1/2 ">
               {/* Ini udah bener, cuma gambarnya aja ga muncul */}
               <img
                 src={room.image}
                 alt="hotelImg"
-                className="object-cover w-full"
+                className="object-cover w-full h-[70vh] rounded-2xl"
               />
               {/* Room Description */}
+            </div>
+            <div className="w-1/2 flex flex-col justify-between">
               <div>
                 <h1 className="text-3xl font-bold">{room.location}</h1>{" "}
-                <p>{room.description}</p> <p>Status: {room.status}</p>{" "}
+                <p>{room.description}</p>{" "}
               </div>
-            </div>
-            <div className="w-1/2">
-              <div className="flex justify-between w-full">
+              <div className="flex justify-between w-full flex-col">
                 {/* Price */}
-                <div className="w-full px-10 py-10 border shadow-2xl rounded-2xl">
-                  <h1 className="text-3xl font-bold">
-                    {formatPrice(room.price)}{" "}
-                    <span className="text-2xl font-normal">night</span>
-                  </h1>
-                  {/* Check in - Check out */}
-                  <div className="flex flex-col items-center justify-center mt-8">
-                    <label
-                      htmlFor=""
-                      className="text-2xl font-semibold"
-                    >
-                      Check in - Check out
-                    </label>
-                    {/* ... */}
+                <div className="w-full px-10 py-10 border rounded-2xl">
+                  <div className="flex justify-between items-center">
+                    <h1 className="text-3xl font-bold">
+                      {formatPrice(room.price)}{" "}
+                      <span className="text-2xl font-normal">night</span>
+                    </h1>
+                    <div className={cn("grid gap-2 text-center")}>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="date"
+                            variant={"outline"}
+                            className={cn(
+                              "w-[300px] justify-start text-left font-normal",
+                              !date && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="w-4 h-4 mr-2" />
+                            {date?.from ? (
+                              date.to ? (
+                                <>
+                                  {format(date.from, "LLL dd, y")} -{" "}
+                                  {format(date.to, "LLL dd, y")}
+                                </>
+                              ) : (
+                                format(date.from, "LLL dd, y")
+                              )
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto p-0"
+                          align="start"
+                        >
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={date?.from}
+                            selected={date}
+                            onSelect={setDate}
+                            numberOfMonths={2}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
 
                   {/* Reserve button */}
-                  <button className="w-full h-10 mt-5 font-semibold text-white rounded-lg bg-pink">
+                  <button
+                    onClick={() => reservationHandler()}
+                    className="w-full h-10 mt-5 font-semibold text-white rounded-lg bg-pink"
+                  >
                     Reserve
                   </button>
 
                   {/* Total price */}
                   <div className="flex justify-between mt-5 text-xl">
-                    <span>{formatPrice(room.price)} x 5 nights</span>
-                    <span>{formatPrice(room.price * 5)}</span>
+                    <span>
+                      {formatPrice(room.price)} x{" "}
+                      {dateDifferenceInDays(date.from, date.to)} nights
+                    </span>
+                    <span>
+                      {formatPrice(
+                        room.price *
+                          dateDifferenceInDays(date.from ?? 0, date.to ?? 0)
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -22,6 +22,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "@/lib/axiosInstance";
 import fetchUser from "@/lib/fetchUser";
+import { Note, NoteBlank } from "@phosphor-icons/react";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -143,47 +144,52 @@ const HomePage = () => {
             </div>
 
             {/* Account logo */}
-            <div
-              onClick={() => setProfileClicked((prev) => !prev)}
-              className={cn(
-                "flex items-center aspect-square justify-center h-12 p-1 border rounded-full border-slate-400 relative cursor-pointer"
-              )}
-            >
-              <img
-                src={profileIcon}
-                alt="profileIcon"
-              />
+            <div className="flex items-center gap-8">
+              <Link to={"/payment"}>
+                <Note className="size-6" />
+              </Link>
               <div
+                onClick={() => setProfileClicked((prev) => !prev)}
                 className={cn(
-                  "absolute w-32 h-auto top-[110%] border rounded-xl bg-white right-0",
-                  { hidden: profileClicked }
+                  "flex items-center aspect-square justify-center h-12 p-1 border rounded-full border-slate-400 relative cursor-pointer"
                 )}
               >
-                <Link
-                  to={"/admin"}
+                <img
+                  src={profileIcon}
+                  alt="profileIcon"
+                />
+                <div
                   className={cn(
-                    "w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl",
-                    { hidden: authUser.email != "admin@gmail.com" }
+                    "absolute w-32 h-auto top-[110%] border rounded-xl bg-white right-0",
+                    { hidden: profileClicked }
                   )}
                 >
-                  <img
-                    src={settingIcon}
-                    alt=""
-                    className="size-5"
-                  />
-                  Admin
-                </Link>
+                  <Link
+                    to={"/admin"}
+                    className={cn(
+                      "w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl",
+                      { hidden: authUser.email != "admin@gmail.com" }
+                    )}
+                  >
+                    <img
+                      src={settingIcon}
+                      alt=""
+                      className="size-5"
+                    />
+                    Admin
+                  </Link>
 
-                <div
-                  onClick={logoutHandler}
-                  className="w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl"
-                >
-                  <img
-                    src={logoutIcon}
-                    alt=""
-                    className="size-5"
-                  />
-                  Logout
+                  <div
+                    onClick={logoutHandler}
+                    className="w-full p-2 flex justify-center items-center gap-2 border-b cursor-pointer hover:bg-gray-100 rounded-t-xl"
+                  >
+                    <img
+                      src={logoutIcon}
+                      alt=""
+                      className="size-5"
+                    />
+                    Logout
+                  </div>
                 </div>
               </div>
             </div>
@@ -222,7 +228,7 @@ const HomePage = () => {
                         )}
                       </div>
                       <p className="text-gray-500 font-extralight -mt-1">
-                        {room.description}
+                        {room.location}
                       </p>
                     </div>
                     {/* Price */}
